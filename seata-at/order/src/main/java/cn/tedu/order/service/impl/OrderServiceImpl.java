@@ -6,11 +6,9 @@ import cn.tedu.order.feign.EasyIdGeneratorClient;
 import cn.tedu.order.feign.StorageClient;
 import cn.tedu.order.mapper.OrderMapper;
 import cn.tedu.order.service.OrderService;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Random;
-import java.util.UUID;
 
 /**
  * @Author w9711
@@ -27,6 +25,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     EasyIdGeneratorClient easyIdGeneratorClient;
 
+    @GlobalTransactional
     @Override
     public void create(Order order) {
 
@@ -34,6 +33,10 @@ public class OrderServiceImpl implements OrderService {
         Long orderId = easyIdGeneratorClient.nextId("order_business");
         order.setId(orderId);
         orderMapper.create(order);
+
+//        if(Math.random() < 0.5){
+////            throw new RuntimeException("模拟异常");
+////        }
 
         //调用storage，修改库存
         storageClient.decrease(order.getProductId(),order.getCount());
